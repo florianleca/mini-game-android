@@ -7,7 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-public class CapteurLumiere implements Capteur, SensorEventListener {
+public class LightCaptor implements Capteur, SensorEventListener {
 
     private final SensorManager sensorManager;
     private final Sensor lightSensor;
@@ -15,7 +15,7 @@ public class CapteurLumiere implements Capteur, SensorEventListener {
     private static final float SEUIL_CHANGEMENT_LUMIERE = 25.0f;
     public final float SEUIL_LUMIERE_SOMBRE = 20.0f; // Un peu sensible à la main qui passe sur l'écran mais acceptable dans l'état
 
-    public CapteurLumiere(Context context) {
+    public LightCaptor(Context context) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
     }
@@ -39,14 +39,14 @@ public class CapteurLumiere implements Capteur, SensorEventListener {
     }
 
     @Override
-    public void initialiserCapteur() {
+    public void initCaptor() {
         if (lightSensor != null) {
             sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
     @Override
-    public void arreterCapteur() {
+    public void stopCaptor() {
         sensorManager.unregisterListener(this);
     }
 
