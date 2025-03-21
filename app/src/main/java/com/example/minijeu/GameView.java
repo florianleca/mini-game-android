@@ -40,7 +40,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private float grassScrollX = 0;
     private BitmapShader shader;
-
     private boolean gameOver = false;
     private MoveCaptor moveCaptor;
     private LightCaptor lightCaptor;
@@ -51,12 +50,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private int gravity = 2;
     private final Context context;
 
-    public GameView(Context context) {
+    private int score;
+
+    private String difficulty;
+
+    private float touchX = -1; // Coordonnée X du toucher
+    private float touchY = -1; // Coordonnée Y du toucher
+
+    public GameView(Context context, String difficulty) {
         super(context);
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
         this.context = context;
+        this.difficulty = difficulty;
 
         miseEnPlaceDesCapteurs(context);
         initGrassTile();
@@ -79,10 +86,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         touchCaptor = new TouchCaptor();
         setOnTouchListener(new OnTouchListener() {
-            @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    touchCaptor.detecterToucher();
+                    touchX = event.getX();
+                    touchY = event.getY();
+
+                    Log.d("GameView", "Toucher détecté à (x=" + touchX + ", y=" + touchY + ")");
+
                     return true;
                 }
                 return true;
@@ -128,14 +138,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         for (Monster monster : monsters) {
             drawMonster(canvas, monster);
         }
+        drawScore(canvas); // Ajout du score
 
         if (gameOver) {
             goToDefeatActivity();
         }
     }
 
+    private void drawScore(Canvas canvas) {
+        Paint scorePaint = new Paint();
+        scorePaint.setColor(Color.BLACK);
+        scorePaint.setTextSize(50);
+        canvas.drawText("Score: " + score, getWidth() - 250, 50, scorePaint);
+    }
+
     private void goToDefeatActivity() {
         Intent intent = new Intent(context, DefeatActivity.class);
+        intent.putExtra("score", score);
+        intent.putExtra("difficulty", difficulty);
         context.startActivity(intent);
     }
 
@@ -208,13 +228,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void moveMonster(Monster monster) {
-        monster.setX(monster.getX() - 10);
+        monster.setX(monster.getX() - 30);
         if (monster.getX() + monster.getWidth() <= 0) {
             killMonster(monster);
         }
     }
 
     private void killMonster(Monster monster) {
+        score = score + 10;
         monsters.remove(monster);
     }
 
@@ -299,6 +320,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void manageTouch() {
+        if (touchX != -1 && touchY != -1) {
+            isMonsterTouched(touchX, touchY);
+            touchX = -1;
+            touchY = -1;
+        }
+
         if (touchCaptor.isTouchDetected()) {
             touchCaptor.setTouchDetected(false);
             Log.d("GameView", "Toucher détecté !");
@@ -307,6 +334,25 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     killMonster(monster);
                 }
             }
+        }
+    }
+    private void isMonsterTouched(float touchX, float touchY) {
+        for (Monster monster : monsters) {
+            if (monster instanceof Fence){
+                int monsterLeft = monster.getX() - 20;
+                int monsterRight = (monsterLeft + monster.getWidth()) + 20;
+                int monsterTop = getHeight() - (GRASS_HEIGHT + monster.getHeigth());
+                int monsterBottom = getHeight() - GRASS_HEIGHT;
+
+
+                if (touchX >= monsterLeft && touchX <= monsterRight && touchY >= monsterTop && touchY <= monsterBottom) {
+                    Log.d("GameView", "Toucher sur le monstre !");
+                    killMonster(monster);
+                    break;
+                }
+            }
+
+
         }
     }
 }
