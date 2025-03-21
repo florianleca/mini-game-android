@@ -1,10 +1,8 @@
 package com.example.minijeu;
 
-import android.graphics.Color;
+public class Princess extends Personnage{
 
-public class Queen extends Personnage{
-
-    public Queen(int x, int y, int color) {
+    public Princess(int x, int y, int color) {
         super(x, y, color);
     }
 

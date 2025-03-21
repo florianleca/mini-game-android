@@ -13,28 +13,24 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.example.minijeu.capteurs.CapteurLumiere;
-import com.example.minijeu.capteurs.CapteurMouvement;
-import com.example.minijeu.capteurs.CapteurToucher;
+import com.example.minijeu.capteurs.LightCaptor;
+import com.example.minijeu.capteurs.MoveCaptor;
+import com.example.minijeu.capteurs.TouchCaptor;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
-    private final GameThread thread;
     private static final int GRASS_HEIGHT = 200;
-    private final int marginMonster1=1000;
-    private final int marginMonster2=3000;
-    private Queen queen = new Queen(150, GRASS_HEIGHT + 150, Color.rgb(255, 215, 0));
-    private Monster monster1 = new Monster(getWidth(), GRASS_HEIGHT, Color.rgb(250, 0, 0));
-    private Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0));
+    private final Princess princess = new Princess(150, GRASS_HEIGHT + 150, Color.rgb(255, 215, 0));
+    private final Monster monster1 = new Monster(getWidth(), GRASS_HEIGHT, Color.rgb(250, 0, 0),1000);
+    private final Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0),3000);
+    private final GameThread thread;
+
     private boolean gameOver = false;
+    private MoveCaptor moveCaptor;
+    private LightCaptor lightCaptor;
+    private TouchCaptor touchCaptor;
 
-    private ArrayList<Monster> monsters = new ArrayList<>();
-    private CapteurMouvement capteurMouvement;
-    private CapteurLumiere capteurLumiere;
-    private CapteurToucher capteurToucher;
-    private int valeur_y;
-
-    private boolean personnageSaute = false;
-    private long tempsDebutSaut = 0;
+    private boolean jumping = false;
+    private long jumpStartTime = 0;
     private int xMonster1 = 0;
     private int xMonster2 = -500;
     private final Context context;
@@ -46,31 +42,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
         this.context = context;
 
-        monsters.add(new Monster(0, 0, Color.rgb(250, 0, 0)));
-        monsters.add(new Monster(-500, 0, Color.rgb(0, 0, 0)));
-
         miseEnPlaceDesCapteurs(context);
-
-        SharedPreferences sharedPref = context.getSharedPreferences("MainActivity", Context.MODE_PRIVATE);
-        valeur_y = sharedPref.getInt("valeur_y", 0);
-
     }
 
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     private void miseEnPlaceDesCapteurs(Context context) {
-        capteurMouvement = new CapteurMouvement(context);
-        capteurMouvement.initialiserCapteur();
+        moveCaptor = new MoveCaptor(context);
+        moveCaptor.initCaptor();
 
-        capteurLumiere = new CapteurLumiere(context);
-        capteurLumiere.initialiserCapteur();
+        lightCaptor = new LightCaptor(context);
+        lightCaptor.initCaptor();
 
-        capteurToucher = new CapteurToucher();
+        touchCaptor = new TouchCaptor();
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    capteurToucher.detecterToucher();
+                    touchCaptor.detecterToucher();
                     return true;
                 }
                 return true;
@@ -95,7 +82,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
             retry = false;
         }
-        supprimerCapteurs();
+        stopCaptors();
     }
 
 
@@ -103,17 +90,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         thread.setRunning(true);
         thread.start();
-        initialiserCapteurs();
+        initCaptors();
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-
-        SharedPreferences sharedPref = context.getSharedPreferences("MainActivity", Context.MODE_PRIVATE);
-        int valeur_y = sharedPref.getInt("valeur_y", 0);
-        Log.d("valeur_y", String.valueOf(valeur_y));
-
         canvas.drawColor(Color.rgb(135, 206, 235));
 
         drawGrass(canvas);
@@ -151,9 +133,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Paint goldPaint = new Paint();
         goldPaint.setColor(Color.rgb(255, 215, 0));
 
-        canvas.drawRect(queen.getX(),
-                getHeight() - (GRASS_HEIGHT + queen.getHeigth()),
-                queen.getX() + queen.getWidth(),
+        canvas.drawRect(princess.getX(),
+                getHeight() - (GRASS_HEIGHT + princess.getHeigth()),
+                princess.getX() + princess.getWidth(),
                 getHeight() - GRASS_HEIGHT, goldPaint);
     }
 
@@ -168,88 +150,78 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int monster2ActualX = getWidth() - monster2.getX();
 
         boolean collisionQueenMonster1 =
-                queen.getX() + queen.getWidth() > monster1ActualX &&
-                        queen.getX() < monster1ActualX + monster1.getWidth() &&
-                        queen.getY() + queen.getHeigth() > getHeight() - (GRASS_HEIGHT + monster1.getHeigth());
+                princess.getX() + princess.getWidth() > monster1ActualX &&
+                        princess.getX() < monster1ActualX + monster1.getWidth() &&
+                        princess.getY() + princess.getHeigth() > getHeight() - (GRASS_HEIGHT + monster1.getHeigth());
 
         boolean collisionQueenMonster2 =
-                queen.getX() + queen.getWidth() > monster2ActualX &&
-                        queen.getX() < monster2ActualX + monster2.getWidth() &&
-                        queen.getY() + queen.getHeigth() > getHeight() - (GRASS_HEIGHT + monster2.getHeigth());
+                princess.getX() + princess.getWidth() > monster2ActualX &&
+                        princess.getX() < monster2ActualX + monster2.getWidth() &&
+                        princess.getY() + princess.getHeigth() > getHeight() - (GRASS_HEIGHT + monster2.getHeigth());
 
         if (collisionQueenMonster1 || collisionQueenMonster2) {
             gameOver = true;
             thread.setRunning(false);
         }
 
-        monster1.setX((monster1.getX() + 10) % (getWidth() + marginMonster1));
+        monster1.setX((monster1.getX() + 10) % (getWidth() + monster1.getMargin()));
 
         if (Math.abs(monster2.getX() - monster1.getX()) >= 700) {
-            monster2.setX((monster2.getX() + 10) % (getWidth() + marginMonster2));
+            monster2.setX((monster2.getX() + 10) % (getWidth() + monster2.getMargin()));
         }
 
-        gestionSaut();
-        gestionLumiere();
-        gestionToucher();
+        manageJump();
+        manageLight();
+        manageTouch();
 
         SharedPreferences sharedPref = context.getSharedPreferences("MainActivity", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("valeur_y", valeur_y);
         editor.apply();
     }
 
-    public void initialiserCapteurs() {
-        capteurMouvement = new CapteurMouvement(context);
-        capteurMouvement.initialiserCapteur();
+    public void initCaptors() {
+        moveCaptor = new MoveCaptor(context);
+        moveCaptor.initCaptor();
 
-        capteurLumiere = new CapteurLumiere(context);
-        capteurLumiere.initialiserCapteur();
-        int marginMonster1 = 1000;
-        int marginMonster2 = 3000;
-        xMonster1 = (xMonster1 + 10) % (getWidth() + marginMonster1);
-        if (Math.abs(xMonster2 - xMonster1) >= 700) {
-            xMonster2 = (xMonster2 + 10) % (getWidth() + marginMonster2);
+        lightCaptor = new LightCaptor(context);
+        lightCaptor.initCaptor();
+    }
+
+    private void stopCaptors() {
+        if (moveCaptor != null) {
+            moveCaptor.stopCaptor();
+        }
+        if (lightCaptor != null) {
+            lightCaptor.stopCaptor();
         }
     }
 
-    private void supprimerCapteurs() {
-        if (capteurMouvement != null) {
-            capteurMouvement.arreterCapteur();
-        }
-        if (capteurLumiere != null) {
-            capteurLumiere.arreterCapteur();
-        }
-    }
-
-    private void gestionSaut() {
-        if (capteurMouvement.estSautDetecte()) {
-            personnageSaute = true;
-            tempsDebutSaut = System.currentTimeMillis();
+    private void manageJump() {
+        if (moveCaptor.estSautDetecte()) {
+            jumping = true;
+            jumpStartTime = System.currentTimeMillis();
         }
 
-        if (personnageSaute) {
-            if (System.currentTimeMillis() - tempsDebutSaut < 1000) {
-                valeur_y = (valeur_y - 10);
+        if (jumping) {
+            if (System.currentTimeMillis() - jumpStartTime < 1000) {
                 Log.d("GameView", "le personnage est en l'air");
             } else {
-                personnageSaute = false;
+                jumping = false;
                 Log.d("GameView", "Le personnage arrete de sauter");
             }
-        } else {
-            valeur_y = (valeur_y + 2);
         }
     }
 
-    private void gestionLumiere() {
-        float lightValue = capteurLumiere.obtenirValeursCapteur();
-        if (lightValue < capteurLumiere.SEUIL_LUMIERE_SOMBRE) {
+    private void manageLight() {
+        float lightValue = lightCaptor.obtenirValeursCapteur();
+        if (lightValue < lightCaptor.SEUIL_LUMIERE_SOMBRE) {
             Log.d("GameView", "Capteur de lumière CACHÉ ! Valeur: " + lightValue);
         }
     }
-}
 
-    private void gestionToucher() {
-        if (capteurToucher.estToucherDetecte()) {
+    private void manageTouch() {
+        if (touchCaptor.isTouchDetected()) {
+            touchCaptor.setTouchDetected(false);
             Log.d("GameView", "Toucher détecté !");
         }
     }

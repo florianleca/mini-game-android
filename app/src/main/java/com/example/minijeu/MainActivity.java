@@ -7,13 +7,13 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.example.minijeu.capteurs.CapteurLumiere;
-import com.example.minijeu.capteurs.CapteurMouvement;
+import com.example.minijeu.capteurs.LightCaptor;
+import com.example.minijeu.capteurs.MoveCaptor;
 
 public class MainActivity extends Activity {
 
-    private CapteurMouvement capteurMouvement;
-    private CapteurLumiere capteurLumiere;
+    private MoveCaptor moveCaptor;
+    private LightCaptor lightCaptor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,11 +23,11 @@ public class MainActivity extends Activity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(new GameView(this));
 
-        capteurMouvement = new CapteurMouvement(this);
-        capteurMouvement.initialiserCapteur();
+        moveCaptor = new MoveCaptor(this);
+        moveCaptor.initCaptor();
 
-        capteurLumiere = new CapteurLumiere(this);
-        capteurLumiere.initialiserCapteur();
+        lightCaptor = new LightCaptor(this);
+        lightCaptor.initCaptor();
 
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         int valeur_y = sharedPref.getInt("valeur_y", 0);
@@ -41,22 +41,22 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (capteurMouvement != null) {
-            capteurMouvement.arreterCapteur();
+        if (moveCaptor != null) {
+            moveCaptor.stopCaptor();
         }
-        if (capteurLumiere != null) {
-            capteurLumiere.arreterCapteur();
+        if (lightCaptor != null) {
+            lightCaptor.stopCaptor();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (capteurMouvement != null) {
-            capteurMouvement.initialiserCapteur();
+        if (moveCaptor != null) {
+            moveCaptor.initCaptor();
         }
-        if (capteurLumiere != null) {
-            capteurLumiere.initialiserCapteur();
+        if (lightCaptor != null) {
+            lightCaptor.initCaptor();
         }
     }
 }

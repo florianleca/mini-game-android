@@ -6,13 +6,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class CapteurMouvement implements Capteur, SensorEventListener {
+public class MoveCaptor implements Capteur, SensorEventListener {
     private final SensorManager sensorManager;
     private final Sensor accelerometer;
     private float lastAcceleration;
     private boolean sautDetecte;
     private static final float SEUIL_SAUT = 18.0f;
-    public CapteurMouvement(Context context) {
+    public MoveCaptor(Context context) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
@@ -32,12 +32,12 @@ public class CapteurMouvement implements Capteur, SensorEventListener {
     }
 
     @Override
-    public void initialiserCapteur() {
+    public void initCaptor() {
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
-    public void arreterCapteur() {
+    public void stopCaptor() {
         sensorManager.unregisterListener(this);
     }
 

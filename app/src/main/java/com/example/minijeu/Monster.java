@@ -1,11 +1,11 @@
 package com.example.minijeu;
 
-import android.graphics.Color;
 
 public class Monster extends Personnage {
-
-    public Monster(int x, int y, int color) {
+private int margin;
+    public Monster(int x, int y, int color, int margin) {
         super(x, y, color);
+        this.margin = margin;
     }
 
     public int getHeigth() {
@@ -15,4 +15,9 @@ public class Monster extends Personnage {
     public int getWidth() {
         return 100;
     }
+
+    public int getMargin() {
+        return margin;
+    }
+
 }
