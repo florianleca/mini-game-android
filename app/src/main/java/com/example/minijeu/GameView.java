@@ -133,16 +133,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         super.draw(canvas);
         canvas.drawColor(Color.rgb(135, 206, 235));
 
+
         drawGrass(canvas);
         drawPrincess(canvas);
         for (Monster monster : monsters) {
-            drawMonster(canvas, monster);
+            drawSprites(canvas, monster);
         }
         drawScore(canvas); // Ajout du score
 
         if (gameOver) {
             goToDefeatActivity();
         }
+    }
+
+    private void drawSprites(Canvas canvas, Monster monster) {
+        Bitmap spriteRaw;
+        if (monster instanceof Ghost) {
+            spriteRaw = BitmapFactory.decodeResource(getResources(), R.drawable.ghost);
+        }
+        else if (monster instanceof Bloc) {
+            spriteRaw = BitmapFactory.decodeResource(getResources(), R.drawable.barrel);
+        }
+        else {
+            spriteRaw = BitmapFactory.decodeResource(getResources(), R.drawable.box);
+        }
+        Bitmap sprite = Bitmap.createScaledBitmap(spriteRaw, 100, 100, true);
+        canvas.drawBitmap(sprite, monster.getX(), getHeight() - monster.getY() - monster.getHeigth(), null);
     }
 
     private void drawScore(Canvas canvas) {
@@ -158,18 +174,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         intent.putExtra("difficulty", difficulty);
         context.startActivity(intent);
     }
-
-    private void drawMonster(Canvas canvas, Monster monster) {
-        Paint monsterPaint = new Paint();
-        monsterPaint.setColor(monster.getColor());
-
-        canvas.drawRect(
-                monster.getX(),
-                getHeight() - (GRASS_HEIGHT + monster.getHeigth()),
-                monster.getX() + monster.getWidth(),
-                getHeight() - GRASS_HEIGHT, monsterPaint);
-    }
-
 
     private void drawPrincess(Canvas canvas) {
         Paint goldPaint = new Paint();
@@ -228,7 +232,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void moveMonster(Monster monster) {
-        monster.setX(monster.getX() - 30);
+        monster.setX(monster.getX() - 10);
         if (monster.getX() + monster.getWidth() <= 0) {
             killMonster(monster);
         }
@@ -336,9 +340,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
     }
+
     private void isMonsterTouched(float touchX, float touchY) {
         for (Monster monster : monsters) {
-            if (monster instanceof Fence){
+            if (monster instanceof Fence) {
                 int monsterLeft = monster.getX() - 20;
                 int monsterRight = (monsterLeft + monster.getWidth()) + 20;
                 int monsterTop = getHeight() - (GRASS_HEIGHT + monster.getHeigth());
