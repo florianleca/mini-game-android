@@ -12,7 +12,7 @@ public class CapteurLumiere implements Capteur, SensorEventListener {
     private final SensorManager sensorManager;
     private final Sensor lightSensor;
     private float lastLightValue = -1;
-    private static final float SEUIL_CHANGEMENT_LUMIERE = 20.0f;
+    private static final float SEUIL_CHANGEMENT_LUMIERE = 25.0f;
     public final float SEUIL_LUMIERE_SOMBRE = 20.0f; // Un peu sensible à la main qui passe sur l'écran mais acceptable dans l'état
 
     public CapteurLumiere(Context context) {

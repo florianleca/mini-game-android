@@ -11,8 +11,7 @@ public class CapteurMouvement implements Capteur, SensorEventListener {
     private final Sensor accelerometer;
     private float lastAcceleration;
     private boolean sautDetecte;
-    private static final float SEUIL_SAUT = 12.0f;
-
+    private static final float SEUIL_SAUT = 18.0f;
     public CapteurMouvement(Context context) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
