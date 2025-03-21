@@ -1,10 +1,13 @@
 package com.example.minijeu;
 
-public class Score {
+public class HighScore {
     private String difficulte;
     private int score;
 
-    public Score(String difficulte, int score) {
+    private String pseudo;
+
+    public HighScore(String difficulte,String pseudo, int score) {
+        this.pseudo = pseudo;
         this.difficulte = difficulte;
         this.score = score;
     }
@@ -15,5 +18,9 @@ public class Score {
 
     public int getScore() {
         return score;
+    }
+
+    public String getPseudo() {
+        return pseudo;
     }
 }
