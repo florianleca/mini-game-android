@@ -1,25 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@drawable/pepeclown">  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Super Peach 6"
-    android:textSize="24sp"
-    android:layout_weight="1"
-    android:textStyle="bold"
-    android:textAlignment="center"
-    android:layout_marginBottom="32dp"/>
+    android:gravity="bottom">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="8dp">
 
         <EditText
             android:id="@+id/pseudo_input"
@@ -29,7 +20,7 @@
             android:maxLength="3"
             android:inputType="textCapCharacters"
             android:gravity="center"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,7 +33,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Facile"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                android:minHeight="36dp"
+                android:backgroundTint="@android:color/holo_blue_light" />
 
             <Button
                 android:id="@+id/button_difficile"
@@ -50,66 +43,18 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Difficile"
-                android:layout_marginStart="8dp"/>
+                android:layout_marginStart="8dp"
+                android:minHeight="36dp"
+                android:backgroundTint="@android:color/holo_blue_light" />
+
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/button_high_scores"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="High Scores"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:layout_marginBottom="4dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="2dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Facile"
-                android:textSize="14sp"
-                android:textAlignment="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Difficile"
-                android:textSize="14sp"
-                android:textAlignment="center" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/scores_facile_recycler_view"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/scores_difficile_recycler_view"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"/>
-
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="High Scores"
+        android:minHeight="36dp"
+        android:backgroundTint="@android:color/holo_blue_light" />
 </LinearLayout>
