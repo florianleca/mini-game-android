@@ -9,7 +9,7 @@ public class Queen extends Personnage{
     }
 
     public int getHeigth() {
-        return 100;
+        return 200;
     }
 
     public int getWidth() {

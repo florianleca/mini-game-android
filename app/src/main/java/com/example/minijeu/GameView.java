@@ -17,19 +17,16 @@ import com.example.minijeu.capteurs.CapteurLumiere;
 import com.example.minijeu.capteurs.CapteurMouvement;
 import com.example.minijeu.capteurs.CapteurToucher;
 
-import java.util.ArrayList;
-
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
-
     private final GameThread thread;
     private static final int GRASS_HEIGHT = 200;
-
-    private Queen queen = new Queen(150, 150, Color.rgb(255, 215, 0));
-    private Monster monster1 = new Monster(0, 0, Color.rgb(250, 0, 0));
-
-    private Monster monster2 = new Monster(-500, 0, Color.rgb(0, 0, 0));
-
+    private final int marginMonster1=1000;
+    private final int marginMonster2=3000;
+    private Queen queen = new Queen(150, GRASS_HEIGHT + 150, Color.rgb(255, 215, 0));
+    private Monster monster1 = new Monster(getWidth(), GRASS_HEIGHT, Color.rgb(250, 0, 0));
+    private Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0));
     private boolean gameOver = false;
+
     private ArrayList<Monster> monsters = new ArrayList<>();
     private CapteurMouvement capteurMouvement;
     private CapteurLumiere capteurLumiere;
@@ -59,6 +56,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     private void miseEnPlaceDesCapteurs(Context context) {
         capteurMouvement = new CapteurMouvement(context);
         capteurMouvement.initialiserCapteur();
@@ -120,6 +119,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         drawGrass(canvas);
         drawPrincess(canvas);
         drawMonster(canvas);
+
+        if (gameOver) {
+            Paint textPaint = new Paint();
+            textPaint.setColor(Color.BLACK);
+            textPaint.setTextSize(80);
+            canvas.drawText("Game Over", getWidth() / 2 - 200, getHeight() / 2, textPaint);
+        }
     }
 
     private void drawMonster(Canvas canvas) {
@@ -129,26 +135,25 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Paint blackPaint = new Paint();
         blackPaint.setColor(Color.rgb(0, 0, 0));
 
-
-
         canvas.drawRect(getWidth() - monster1.getX(),
                 getHeight() - (GRASS_HEIGHT + monster1.getHeigth()),
                 getWidth() + monster1.getWidth() - monster1.getX(),
                 getHeight() - GRASS_HEIGHT, redPaint);
+
         canvas.drawRect(getWidth() - monster2.getX(),
                 getHeight() - (GRASS_HEIGHT + monster2.getHeigth()),
-                getWidth() + monster2.getWidth() - monster2.getX(), getHeight() - GRASS_HEIGHT, blackPaint);
+                getWidth() + monster2.getWidth() - monster2.getX(),
+                getHeight() - GRASS_HEIGHT, blackPaint);
     }
+
 
     private void drawPrincess(Canvas canvas) {
         Paint goldPaint = new Paint();
         goldPaint.setColor(Color.rgb(255, 215, 0));
-        int princessWidth = 100;
-        int princessHeight = 200;
-        // left top right bottom
+
         canvas.drawRect(queen.getX(),
-                getHeight() - (GRASS_HEIGHT + princessHeight),
-                queen.getX() + princessWidth,
+                getHeight() - (GRASS_HEIGHT + queen.getHeigth()),
+                queen.getX() + queen.getWidth(),
                 getHeight() - GRASS_HEIGHT, goldPaint);
     }
 
@@ -159,9 +164,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-        int marginMonster1 = 1000;
-        int marginMonster2 = 3000;
+        int monster1ActualX = getWidth() - monster1.getX();
+        int monster2ActualX = getWidth() - monster2.getX();
+
+        boolean collisionQueenMonster1 =
+                queen.getX() + queen.getWidth() > monster1ActualX &&
+                        queen.getX() < monster1ActualX + monster1.getWidth() &&
+                        queen.getY() + queen.getHeigth() > getHeight() - (GRASS_HEIGHT + monster1.getHeigth());
+
+        boolean collisionQueenMonster2 =
+                queen.getX() + queen.getWidth() > monster2ActualX &&
+                        queen.getX() < monster2ActualX + monster2.getWidth() &&
+                        queen.getY() + queen.getHeigth() > getHeight() - (GRASS_HEIGHT + monster2.getHeigth());
+
+        if (collisionQueenMonster1 || collisionQueenMonster2) {
+            gameOver = true;
+            thread.setRunning(false);
+        }
+
         monster1.setX((monster1.getX() + 10) % (getWidth() + marginMonster1));
+
         if (Math.abs(monster2.getX() - monster1.getX()) >= 700) {
             monster2.setX((monster2.getX() + 10) % (getWidth() + marginMonster2));
         }
@@ -224,6 +246,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             Log.d("GameView", "Capteur de lumière CACHÉ ! Valeur: " + lightValue);
         }
     }
+}
 
     private void gestionToucher() {
         if (capteurToucher.estToucherDetecte()) {
