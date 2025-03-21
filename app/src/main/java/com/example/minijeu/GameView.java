@@ -40,7 +40,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private float grassScrollX = 0;
     private BitmapShader shader;
-
     private boolean gameOver = false;
     private MoveCaptor moveCaptor;
     private LightCaptor lightCaptor;
@@ -51,15 +50,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private int gravity = 2;
     private final Context context;
 
+    private int score;
+
+    private String difficulty;
+
     private float touchX = -1; // Coordonnée X du toucher
     private float touchY = -1; // Coordonnée Y du toucher
 
-    public GameView(Context context) {
+    public GameView(Context context, String difficulty) {
         super(context);
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
         this.context = context;
+        this.difficulty = difficulty;
 
         miseEnPlaceDesCapteurs(context);
         initGrassTile();
@@ -134,14 +138,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         for (Monster monster : monsters) {
             drawMonster(canvas, monster);
         }
+        drawScore(canvas); // Ajout du score
 
         if (gameOver) {
             goToDefeatActivity();
         }
     }
 
+    private void drawScore(Canvas canvas) {
+        Paint scorePaint = new Paint();
+        scorePaint.setColor(Color.BLACK);
+        scorePaint.setTextSize(50);
+        canvas.drawText("Score: " + score, getWidth() - 250, 50, scorePaint);
+    }
+
     private void goToDefeatActivity() {
         Intent intent = new Intent(context, DefeatActivity.class);
+        intent.putExtra("score", score);
+        intent.putExtra("difficulty", difficulty);
         context.startActivity(intent);
     }
 
@@ -221,6 +235,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void killMonster(Monster monster) {
+        score = score + 10;
         monsters.remove(monster);
     }
 

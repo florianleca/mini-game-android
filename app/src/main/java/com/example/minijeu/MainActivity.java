@@ -1,8 +1,6 @@
 package com.example.minijeu;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -14,6 +12,7 @@ public class MainActivity extends Activity {
 
     private MoveCaptor moveCaptor;
     private LightCaptor lightCaptor;
+    private String difficulty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,13 +20,17 @@ public class MainActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(new GameView(this));
+        difficulty = getIntent().getStringExtra("difficulte");
+
+        setContentView(new GameView(this, difficulty));
 
         moveCaptor = new MoveCaptor(this);
         moveCaptor.initCaptor();
 
         lightCaptor = new LightCaptor(this);
         lightCaptor.initCaptor();
+
+
     }
 
     @Override
