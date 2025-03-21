@@ -25,7 +25,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 
     private final GameThread thread;
-    private int x = 0;
     private CapteurMouvement capteurMouvement;
     private CapteurLumiere capteurLumiere;
     private CapteurToucher capteurToucher;
@@ -146,7 +145,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-        x = (x + 1) % 300;
+        int marginMonster1 = 1000;
+        int marginMonster2 = 3000;
+        xMonster1 = (xMonster1 + 10) % (getWidth() + marginMonster1);
+        if (Math.abs(xMonster2 - xMonster1) >= 700) {
+            xMonster2 = (xMonster2 + 10) % (getWidth() + marginMonster2);
+        }
 
         gestionSaut();
         gestionLumiere();
