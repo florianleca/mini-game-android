@@ -21,12 +21,21 @@ import androidx.annotation.NonNull;
 import com.example.minijeu.capteurs.LightCaptor;
 import com.example.minijeu.capteurs.MoveCaptor;
 import com.example.minijeu.capteurs.TouchCaptor;
+import com.example.minijeu.models.Bloc;
+import com.example.minijeu.models.Fence;
+import com.example.minijeu.models.Ghost;
+import com.example.minijeu.models.Monster;
+import com.example.minijeu.models.Princess;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int GRASS_HEIGHT = 200;
     private final Princess princess = new Princess(150, GRASS_HEIGHT, Color.rgb(255, 215, 0));
-    private final Monster monster1 = new Monster(getWidth(), GRASS_HEIGHT, Color.rgb(250, 0, 0), 1000);
-    private final Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0), 3000);
+
+    private List<Monster> monsters = new ArrayList<>();
+
     private final GameThread thread;
 
     private float grassScrollX = 0;
@@ -116,7 +125,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         drawGrass(canvas);
         drawPrincess(canvas);
-        drawMonster(canvas);
+        for (Monster monster : monsters) {
+            drawMonster(canvas, monster);
+        }
 
         if (gameOver) {
             goToDefeatActivity();
@@ -128,22 +139,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         context.startActivity(intent);
     }
 
-    private void drawMonster(Canvas canvas) {
-        Paint redPaint = new Paint();
-        redPaint.setColor(Color.rgb(250, 0, 0));
+    private void drawMonster(Canvas canvas, Monster monster) {
+        Paint monsterPaint = new Paint();
+        monsterPaint.setColor(monster.getColor());
 
-        Paint blackPaint = new Paint();
-        blackPaint.setColor(Color.rgb(0, 0, 0));
-
-        canvas.drawRect(getWidth() - monster1.getX(),
-                getHeight() - (GRASS_HEIGHT + monster1.getHeigth()),
-                getWidth() + monster1.getWidth() - monster1.getX(),
-                getHeight() - GRASS_HEIGHT, redPaint);
-
-        canvas.drawRect(getWidth() - monster2.getX(),
-                getHeight() - (GRASS_HEIGHT + monster2.getHeigth()),
-                getWidth() + monster2.getWidth() - monster2.getX(),
-                getHeight() - GRASS_HEIGHT, blackPaint);
+        canvas.drawRect(
+                monster.getX(),
+                getHeight() - (GRASS_HEIGHT + monster.getHeigth()),
+                monster.getX() + monster.getWidth(),
+                getHeight() - GRASS_HEIGHT, monsterPaint);
     }
 
 
@@ -172,24 +176,54 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-        moveMonster(monster1);
-        if (Math.abs(monster2.getX() - monster1.getX()) >= 700) {
-            moveMonster(monster2);
+
+        if (monsters.isEmpty()) {
+            createMonster();
+        } else if (monsters.size() == 1) {
+            Monster existingMonster = monsters.get(0);
+            if (existingMonster.getX() <= 500) {
+                createMonster();
+            }
         }
+
+        for (Monster monster : monsters) {
+            moveMonster(monster);
+        }
+
         manageJump();
         manageLight();
         manageTouch();
         manageCollisions();
     }
 
+    private void createMonster() {
+        double random = Math.random();
+        if (random < 0.01) {
+            monsters.add(new Bloc(getWidth(), GRASS_HEIGHT));
+        } else if (random < 0.02) {
+            monsters.add(new Ghost(getWidth(), GRASS_HEIGHT));
+        } else if (random < 0.03) {
+            monsters.add(new Fence(getWidth(), GRASS_HEIGHT));
+        }
+    }
+
     private void moveMonster(Monster monster) {
-        monster.setX((monster.getX() + 10) % (getWidth() + monster.getMargin()));
+        monster.setX(monster.getX() - 10);
+        if (monster.getX() + monster.getWidth() <= 0) {
+            killMonster(monster);
+        }
+    }
+
+    private void killMonster(Monster monster) {
+        monsters.remove(monster);
     }
 
     private void manageCollisions() {
-        if (isCollided(monster1) || isCollided(monster2)) {
-            gameOver = true;
-            thread.setRunning(false);
+        for (Monster monster : monsters) {
+            if (isCollided(monster)) {
+                gameOver = true;
+                thread.setRunning(false);
+            }
         }
     }
 
@@ -200,8 +234,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         int princessTop = getHeight() - (princess.getHeigth() + princess.getY() + princess.getJumpHeight());
         int princessBottom = getHeight() - (princess.getY() + princess.getJumpHeight());
 
-        int monsterLeft = getWidth() - monster.getX();
-        int monsterRight = getWidth() - monster.getX() + monster.getWidth();
+        int monsterLeft = monster.getX();
+        int monsterRight = monster.getX() + monster.getWidth();
         int monsterTop = getHeight() - (GRASS_HEIGHT + monster.getHeigth());
         int monsterBottom = getHeight() - GRASS_HEIGHT;
 
@@ -256,6 +290,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         float lightValue = lightCaptor.obtenirValeursCapteur();
         if (lightValue < lightCaptor.SEUIL_LUMIERE_SOMBRE) {
             Log.d("GameView", "Capteur de lumière CACHÉ ! Valeur: " + lightValue);
+            for (Monster monster : monsters) {
+                if (monster instanceof Ghost) {
+                    killMonster(monster);
+                }
+            }
         }
     }
 
@@ -263,6 +302,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         if (touchCaptor.isTouchDetected()) {
             touchCaptor.setTouchDetected(false);
             Log.d("GameView", "Toucher détecté !");
+            for (Monster monster : monsters) {
+                if (monster instanceof Fence) {
+                    killMonster(monster);
+                }
+            }
         }
     }
 }
