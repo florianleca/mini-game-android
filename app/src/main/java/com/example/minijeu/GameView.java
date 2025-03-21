@@ -1,10 +1,15 @@
 package com.example.minijeu;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Shader;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -24,6 +29,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private final Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0), 3000);
     private final GameThread thread;
 
+    private float grassScrollX = 0;
+    private BitmapShader shader;
+
     private boolean gameOver = false;
     private MoveCaptor moveCaptor;
     private LightCaptor lightCaptor;
@@ -42,6 +50,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         this.context = context;
 
         miseEnPlaceDesCapteurs(context);
+        initGrassTile();
+    }
+
+    private void initGrassTile() {
+        Bitmap originalTile = BitmapFactory.decodeResource(getResources(), R.drawable.grass_tile);
+        Bitmap smallTile = Bitmap.createScaledBitmap(originalTile, 150, 150, true);
+        shader = new BitmapShader(smallTile, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+        Paint grassPaint = new Paint();
+        grassPaint.setShader(shader);
     }
 
     private void miseEnPlaceDesCapteurs(Context context) {
@@ -142,9 +159,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void drawGrass(Canvas canvas) {
-        Paint greenPaint = new Paint();
-        greenPaint.setColor(Color.rgb(34, 139, 34));
-        canvas.drawRect(0, getHeight() - GRASS_HEIGHT, canvas.getWidth(), getHeight(), greenPaint);
+        Matrix matrix = new Matrix();
+        matrix.setTranslate(grassScrollX, 0);
+        shader.setLocalMatrix(matrix);
+
+        Paint paint = new Paint();
+        paint.setShader(shader);
+
+        canvas.drawRect(0, getHeight() - GRASS_HEIGHT, getWidth(), getHeight(), paint);
+        grassScrollX -= 10;
+
     }
 
     public void update() {
