@@ -1,6 +1,7 @@
 package com.example.minijeu;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -101,11 +102,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         drawMonster(canvas);
 
         if (gameOver) {
-            Paint textPaint = new Paint();
-            textPaint.setColor(Color.BLACK);
-            textPaint.setTextSize(80);
-            canvas.drawText("Game Over", getWidth() / 2 - 200, getHeight() / 2, textPaint);
+            goToDefeatActivity();
         }
+    }
+
+    private void goToDefeatActivity() {
+        Intent intent = new Intent(context, DefeatActivity.class);
+        context.startActivity(intent);
     }
 
     private void drawMonster(Canvas canvas) {

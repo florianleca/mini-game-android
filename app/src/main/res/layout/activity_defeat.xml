@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/defeat_gif"
+        android:layout_width="641dp"
+        android:layout_height="166dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/sad_princess" />
+
+    <TextView
+        android:id="@+id/defeat_score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Score: 250"
+        android:textSize="24sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/defeat_difficulty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/defeat_highscore_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/defeat_retry_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Réessayer"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/defeat_homepage_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Page d'accueil"/>
+    </LinearLayout>
+</LinearLayout>
