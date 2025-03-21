@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 import java.util.ArrayList;
 
-public class HighscoreActivity extends AppCompatActivity {
+public class HighScoreActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,18 +19,18 @@ public class HighscoreActivity extends AppCompatActivity {
         RecyclerView recyclerDifficile = findViewById(R.id.recycler_difficile);
 
         List<HighScore> scoresFacile = new ArrayList<>();
-        scoresFacile.add(new HighScore("facile", "AAA", 100));
-        scoresFacile.add(new HighScore("facile", "BBB", 95));
-        scoresFacile.add(new HighScore("facile", "CCC", 80));
-        scoresFacile.add(new HighScore("facile", "DDD", 75));
-        scoresFacile.add(new HighScore("facile", "EEE", 60));
+        scoresFacile.add(new HighScore("facile",  100));
+        scoresFacile.add(new HighScore("facile",  95));
+        scoresFacile.add(new HighScore("facile",  80));
+        scoresFacile.add(new HighScore("facile",  75));
+        scoresFacile.add(new HighScore("facile",  60));
 
         List<HighScore> scoresDifficile = new ArrayList<>();
-        scoresDifficile.add(new HighScore("difficile", "FFF", 250));
-        scoresDifficile.add(new HighScore("difficile", "GGG", 220));
-        scoresDifficile.add(new HighScore("difficile", "HHH", 200));
-        scoresDifficile.add(new HighScore("difficile", "III", 180));
-        scoresDifficile.add(new HighScore("difficile", "JJJ", 150));
+        scoresDifficile.add(new HighScore("difficile",  250));
+        scoresDifficile.add(new HighScore("difficile",  220));
+        scoresDifficile.add(new HighScore("difficile",  200));
+        scoresDifficile.add(new HighScore("difficile",  180));
+        scoresDifficile.add(new HighScore("difficile",  150));
 
         // Configuration des RecyclerView
         recyclerFacile.setLayoutManager(new LinearLayoutManager(this));

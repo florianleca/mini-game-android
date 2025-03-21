@@ -20,7 +20,7 @@
 
         </activity>
         <activity
-            android:name=".PageAccueilActivity"
+            android:name=".HomePageActivity"
             android:screenOrientation="landscape"
             android:configChanges="orientation|screenSize"
             android:exported="true">
@@ -32,9 +32,21 @@
         </activity>
 
         <activity
-            android:name=".HighscoreActivity"
+            android:name=".HighScoreActivity"
             android:screenOrientation="landscape"
             android:configChanges="orientation|screenSize"/>
+
+        <activity
+            android:name=".DefeatActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

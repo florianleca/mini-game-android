@@ -4,17 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class PageAccueilActivity extends AppCompatActivity {
+public class HomePageActivity extends AppCompatActivity {
 
     private Button buttonFacile;
     private Button buttonDifficile;
     private Button buttonHighScores;
-    private EditText pseudoInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,40 +21,33 @@ public class PageAccueilActivity extends AppCompatActivity {
         buttonFacile = findViewById(R.id.button_facile);
         buttonDifficile = findViewById(R.id.button_difficile);
         buttonHighScores = findViewById(R.id.button_high_scores);
-        pseudoInput = findViewById(R.id.pseudo_input);
 
         buttonFacile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                demarrerJeu("facile", pseudoInput.getText().toString().toUpperCase());
+                demarrerJeu("facile");
             }
         });
 
         buttonDifficile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                demarrerJeu("difficile", pseudoInput.getText().toString().toUpperCase());
+                demarrerJeu("difficile");
             }
         });
 
         buttonHighScores.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent highScoreIntent = new Intent(PageAccueilActivity.this, HighscoreActivity.class);
+                Intent highScoreIntent = new Intent(HomePageActivity.this, HighScoreActivity.class);
                 startActivity(highScoreIntent);
             }
         });
     }
 
-    private void demarrerJeu(String difficulte, String pseudo) {
-        if (pseudo.length() != 3) {
-            Toast.makeText(this, "Veuillez entrer un pseudo de 3 lettres", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent intent = new Intent(PageAccueilActivity.this, MainActivity.class);
+    private void demarrerJeu(String difficulte) {
+        Intent intent = new Intent(HomePageActivity.this, MainActivity.class);
         intent.putExtra("difficulte", difficulte);
-        intent.putExtra("pseudo", pseudo);
         startActivity(intent);
     }
 }

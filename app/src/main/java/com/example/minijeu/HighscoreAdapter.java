@@ -25,8 +25,8 @@ public class HighscoreAdapter extends RecyclerView.Adapter<HighscoreAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         HighScore highScore = highScores.get(position);
-        String pseudoScore = highScore.getPseudo() + " " + highScore.getScore();
-        holder.scoreTextView.setText(pseudoScore);
+        // Convert the int score to a String before setting it
+        holder.scoreTextView.setText(String.valueOf(highScore.getScore()));
     }
 
     @Override
