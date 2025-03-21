@@ -25,14 +25,14 @@ public class HomePageActivity extends AppCompatActivity {
         buttonFacile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                demarrerJeu("facile");
+                demarrerJeu("FACILE");
             }
         });
 
         buttonDifficile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                demarrerJeu("difficile");
+                demarrerJeu("DIFFICILE");
             }
         });
 
