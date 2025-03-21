@@ -6,6 +6,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class HighscoreAdapter extends RecyclerView.Adapter<HighscoreAdapter.ViewHolder> {
@@ -13,6 +15,13 @@ public class HighscoreAdapter extends RecyclerView.Adapter<HighscoreAdapter.View
     private List<HighScore> highScores;
 
     public HighscoreAdapter(List<HighScore> highScores) {
+        Collections.sort(highScores, new Comparator<HighScore>() {
+            @Override
+            public int compare(HighScore h1, HighScore h2) {
+                return Integer.compare(h2.getScore(), h1.getScore());
+            }
+        });
+
         this.highScores = highScores;
     }
 
@@ -25,7 +34,6 @@ public class HighscoreAdapter extends RecyclerView.Adapter<HighscoreAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         HighScore highScore = highScores.get(position);
-        // Convert the int score to a String before setting it
         holder.scoreTextView.setText(String.valueOf(highScore.getScore()));
     }
 

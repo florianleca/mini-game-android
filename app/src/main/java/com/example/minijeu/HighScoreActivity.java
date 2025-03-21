@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class HighScoreActivity extends AppCompatActivity {
+
+    private Map<String, List<HighScore>> mapHighScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,26 +21,34 @@ public class HighScoreActivity extends AppCompatActivity {
         RecyclerView recyclerFacile = findViewById(R.id.recycler_facile);
         RecyclerView recyclerDifficile = findViewById(R.id.recycler_difficile);
 
-        List<HighScore> scoresFacile = new ArrayList<>();
-        scoresFacile.add(new HighScore("facile",  100));
-        scoresFacile.add(new HighScore("facile",  95));
-        scoresFacile.add(new HighScore("facile",  80));
-        scoresFacile.add(new HighScore("facile",  75));
-        scoresFacile.add(new HighScore("facile",  60));
+        mapHighScore = HighScoreManager.getInstance(this).getMapHighScore();
 
-        List<HighScore> scoresDifficile = new ArrayList<>();
-        scoresDifficile.add(new HighScore("difficile",  250));
-        scoresDifficile.add(new HighScore("difficile",  220));
-        scoresDifficile.add(new HighScore("difficile",  200));
-        scoresDifficile.add(new HighScore("difficile",  180));
-        scoresDifficile.add(new HighScore("difficile",  150));
+        List<HighScore> scoresFacile = mapHighScore.get("FACILE");
+        List<HighScore> scoresDifficile = mapHighScore.get("DIFFICILE");
 
-        // Configuration des RecyclerView
+        if (scoresFacile == null) {
+            scoresFacile = new ArrayList<>();
+            mapHighScore.put("FACILE", scoresFacile);
+        }
+        if (scoresDifficile == null) {
+            scoresDifficile = new ArrayList<>();
+            mapHighScore.put("DIFFICILE", scoresDifficile);
+        }
+
         recyclerFacile.setLayoutManager(new LinearLayoutManager(this));
         recyclerDifficile.setLayoutManager(new LinearLayoutManager(this));
 
-        // Création et attribution des adaptateurs
         recyclerFacile.setAdapter(new HighscoreAdapter(scoresFacile));
         recyclerDifficile.setAdapter(new HighscoreAdapter(scoresDifficile));
+    }
+
+    public void addHighScore(String difficulty, HighScore highScore) {
+        HighScoreManager.getInstance(this).addHighScore(difficulty, highScore);
+        HighScoreManager.getInstance(this).saveHighScores();
+        onCreate(null);
+    }
+
+    public Map<String, List<HighScore>> getMapHighScore() {
+        return mapHighScore;
     }
 }
