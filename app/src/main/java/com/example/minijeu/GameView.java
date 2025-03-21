@@ -1,7 +1,6 @@
 package com.example.minijeu;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,9 +18,9 @@ import com.example.minijeu.capteurs.TouchCaptor;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private static final int GRASS_HEIGHT = 200;
-    private final Princess princess = new Princess(150, GRASS_HEIGHT + 150, Color.rgb(255, 215, 0));
-    private final Monster monster1 = new Monster(getWidth(), GRASS_HEIGHT, Color.rgb(250, 0, 0),1000);
-    private final Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0),3000);
+    private final Princess princess = new Princess(150, GRASS_HEIGHT, Color.rgb(255, 215, 0));
+    private final Monster monster1 = new Monster(getWidth(), GRASS_HEIGHT, Color.rgb(250, 0, 0), 1000);
+    private final Monster monster2 = new Monster(-500, GRASS_HEIGHT, Color.rgb(0, 0, 0), 3000);
     private final GameThread thread;
 
     private boolean gameOver = false;
@@ -30,9 +29,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private TouchCaptor touchCaptor;
 
     private boolean jumping = false;
-    private long jumpStartTime = 0;
-    private int xMonster1 = 0;
-    private int xMonster2 = -500;
+    private int jumpVelocity = 0;
+    private int gravity = 2;
     private final Context context;
 
     public GameView(Context context) {
@@ -133,10 +131,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         Paint goldPaint = new Paint();
         goldPaint.setColor(Color.rgb(255, 215, 0));
 
-        canvas.drawRect(princess.getX(),
-                getHeight() - (GRASS_HEIGHT + princess.getHeigth()),
+        canvas.drawRect(
+                princess.getX(),
+                getHeight() - (princess.getY() + princess.getHeigth() + princess.getJumpHeight()),
                 princess.getX() + princess.getWidth(),
-                getHeight() - GRASS_HEIGHT, goldPaint);
+                getHeight() - (princess.getY() + princess.getJumpHeight()), goldPaint);
     }
 
     private void drawGrass(Canvas canvas) {
@@ -146,37 +145,43 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-        int monster1ActualX = getWidth() - monster1.getX();
-        int monster2ActualX = getWidth() - monster2.getX();
-
-        boolean collisionQueenMonster1 =
-                princess.getX() + princess.getWidth() > monster1ActualX &&
-                        princess.getX() < monster1ActualX + monster1.getWidth() &&
-                        princess.getY() + princess.getHeigth() > getHeight() - (GRASS_HEIGHT + monster1.getHeigth());
-
-        boolean collisionQueenMonster2 =
-                princess.getX() + princess.getWidth() > monster2ActualX &&
-                        princess.getX() < monster2ActualX + monster2.getWidth() &&
-                        princess.getY() + princess.getHeigth() > getHeight() - (GRASS_HEIGHT + monster2.getHeigth());
-
-        if (collisionQueenMonster1 || collisionQueenMonster2) {
-            gameOver = true;
-            thread.setRunning(false);
-        }
-
-        monster1.setX((monster1.getX() + 10) % (getWidth() + monster1.getMargin()));
-
+        moveMonster(monster1);
         if (Math.abs(monster2.getX() - monster1.getX()) >= 700) {
-            monster2.setX((monster2.getX() + 10) % (getWidth() + monster2.getMargin()));
+            moveMonster(monster2);
         }
-
         manageJump();
         manageLight();
         manageTouch();
+        manageCollisions();
+    }
 
-        SharedPreferences sharedPref = context.getSharedPreferences("MainActivity", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.apply();
+    private void moveMonster(Monster monster) {
+        monster.setX((monster.getX() + 10) % (getWidth() + monster.getMargin()));
+    }
+
+    private void manageCollisions() {
+        if (isCollided(monster1) || isCollided(monster2)) {
+            gameOver = true;
+            thread.setRunning(false);
+        }
+    }
+
+    private boolean isCollided(Monster monster) {
+
+        int princessLeft = princess.getX();
+        int princessRight = princess.getX() + princess.getWidth();
+        int princessTop = getHeight() - (princess.getHeigth() + princess.getY() + princess.getJumpHeight());
+        int princessBottom = getHeight() - (princess.getY() + princess.getJumpHeight());
+
+        int monsterLeft = getWidth() - monster.getX();
+        int monsterRight = getWidth() - monster.getX() + monster.getWidth();
+        int monsterTop = getHeight() - (GRASS_HEIGHT + monster.getHeigth());
+        int monsterBottom = getHeight() - GRASS_HEIGHT;
+
+        return princessRight > monsterLeft &&
+                princessLeft < monsterRight &&
+                princessBottom > monsterTop &&
+                princessTop < monsterBottom;
     }
 
     public void initCaptors() {
@@ -199,17 +204,25 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private void manageJump() {
         if (moveCaptor.estSautDetecte()) {
             jumping = true;
-            jumpStartTime = System.currentTimeMillis();
         }
 
         if (jumping) {
-            if (System.currentTimeMillis() - jumpStartTime < 1000) {
-                Log.d("GameView", "le personnage est en l'air");
-            } else {
+            Log.d("GameView", "le personnage est en l'air");
+            if (princess.getJumpHeight() >= 100) {
+                gravity = -1;
+            }
+
+            jumpVelocity += gravity;
+            princess.setJumpHeight(princess.getJumpHeight() + jumpVelocity);
+            if (princess.getJumpHeight() <= 0) {
+                princess.setJumpHeight(0);
                 jumping = false;
+                jumpVelocity = 0;
+                gravity = 2;
                 Log.d("GameView", "Le personnage arrete de sauter");
             }
         }
+
     }
 
     private void manageLight() {
