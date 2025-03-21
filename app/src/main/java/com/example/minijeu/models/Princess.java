@@ -1,4 +1,4 @@
-package com.example.minijeu;
+package com.example.minijeu.models;
 
 public class Princess extends Personnage{
 
